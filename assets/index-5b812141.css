@@ -1,0 +1,1 @@
+img{filter:grayscale(100%) blur(1px)}img:hover{transition:all .2s ease-in-out;transform:scale(1.1);filter:grayscale(0%)}p{color:#878787}p:hover{color:#000}
