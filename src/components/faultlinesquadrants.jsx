@@ -1,6 +1,5 @@
 import { Slider } from '@mui/material';
 import React from 'react';
-import { useCallback } from 'react';
 
 //no animation (freezes after a few rerenders though)
 

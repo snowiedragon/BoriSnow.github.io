@@ -1,8 +1,8 @@
 import { useEffect } from "react";
-import { Connections } from "./connections";
-import { Perspective } from "./perspective";
-import { Faultline } from "./faultlinesquadrants";
-import { Growth } from "./growth";
+import { Connections } from "./connections.jsx";
+import { Perspective } from "./perspective.jsx";
+import { Faultline } from "./faultlinesquadrants.jsx";
+import { Growth } from "./growth.jsx";
 
 export function Algodetailpage({ algo }) { //accepts the selected algo
     
