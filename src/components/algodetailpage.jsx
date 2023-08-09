@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { Connections } from "./connections.jsx";
 import { Perspective } from "./perspective.jsx";
 import { Faultline } from "./faultlinesquadrants.jsx";
