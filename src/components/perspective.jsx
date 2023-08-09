@@ -262,7 +262,7 @@ export function Perspective() {
                 step={1}
                 marks={true}
                 track={false}
-                min={1}
+                min={2}
                 max={5}
                 value={cubeProportion}
                 onChange={cubeProportionUpdate}
