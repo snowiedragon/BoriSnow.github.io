@@ -118,17 +118,13 @@ export function Connections() {
         render();
 
         document.getElementById('stop').addEventListener('click', function(){
+            if(velocityMultiplier === 0) {return;}
             savedVelocity = velocityMultiplier;
             velocityMultiplier = 0;
         })
 
         document.getElementById('resume').addEventListener('click', function(){
             velocityMultiplier = savedVelocity;
-        })
-
-        document.getElementById('regenerate').addEventListener('click', function(){
-            nodeCount = lastNodeCount;
-            setToggle(!toggle)
         })
 
         document.getElementById('download').addEventListener('click', function(){
@@ -177,7 +173,6 @@ export function Connections() {
             <br/>
             <input type="button" value="STOP!" id="stop"/>
             <input type="button" value="RESUME!" id="resume"/>
-            <input type="button" value="REDO!" id="regenerate"/>
             <input type="button" value="Download Image!" id="download"/>
             <br/>
             Node Density:

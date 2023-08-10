@@ -1,8 +1,6 @@
 import { Slider } from '@mui/material';
 import React from 'react';
 
-//no animation (freezes after a few rerenders though)
-
 export function Faultline () {
     const canvas = React.createRef();
     const [column, setColumn] = React.useState(15);

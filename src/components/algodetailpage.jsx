@@ -1,7 +1,7 @@
 import { Connections } from "./connections.jsx";
 import { Perspective } from "./perspective.jsx";
 import { Faultline } from "./faultlinesquadrants.jsx";
-import { Growth } from "./growth.jsx";
+import { Waves } from "./waves.jsx";
 
 export function Algodetailpage({ algo }) { //accepts the selected algo
     
@@ -39,7 +39,7 @@ export function Algodetailpage({ algo }) { //accepts the selected algo
             {algo === 'Algo1' && <Connections/>} 
             {algo === 'Algo2' && <Perspective/>}
             {algo === 'Algo3' && <Faultline/>}
-            {algo === 'Algo4' && <Growth/>}
+            {algo === 'Algo4' && <Waves/>}
         </div>
     </div>
     )

@@ -26,7 +26,7 @@ export function Homepage({setSelectedAlgo}) {
           border: 'none',
           background: 'none'
         }} onClick={() => setSelectedAlgo("Algo1")}> 
-        <img src="./resources/connections.png" width="100%"/>
+        <img src="/resources/connections.png" width="100%"/>
         </button>
 
         <button style={{
@@ -35,14 +35,14 @@ export function Homepage({setSelectedAlgo}) {
           marginLeft: '30px',
           marginRight: '30px'
         }} onClick={() => setSelectedAlgo("Algo2")}> 
-        <img src="./resources/perspective.png" width="100%"/>
+        <img src="/resources/perspective.png" width="100%"/>
         </button>
 
         <button style={{
           border: 'none',
           background: 'none'
         }} onClick={() => setSelectedAlgo("Algo3")}> 
-        <img src="./resources/faultline.png" width="100%"/>
+        <img src="/resources/faultline.png" width="100%"/>
         </button>
       </div>
     </div>

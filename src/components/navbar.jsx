@@ -52,7 +52,7 @@ export function Navbar({setSelectedAlgo}) {
          <p style={{
           color: 'red'
          }}>
-          Growth
+          Waves
          </p>
         </button>
     </div>
