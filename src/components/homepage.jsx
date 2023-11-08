@@ -13,7 +13,6 @@ export function Homepage({setSelectedAlgo}) {
       <p style={{
         color: 'black'
       }}>
-      placeholder about me text
       </p>
       <br/>
       <div style={{

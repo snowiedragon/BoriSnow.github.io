@@ -1,13 +1,54 @@
 import { Connections } from "./connections.jsx";
 import { Perspective } from "./perspective.jsx";
-import { Faultline } from "./faultlinesquadrants.jsx";
+import { Faultline } from "./faultlines.jsx";
 import { Waves } from "./waves.jsx";
 
 export function Algodetailpage({ algo }) { //accepts the selected algo
     
     const getDescription = ()=> {
         if(algo === "Algo1"){
-            return "Neurons - to do; find that gif"
+            return <>
+            <b style={{
+                fontSize: '40px',
+            }}>
+                Connections
+            </b>
+            <br/>
+                Inspired by the way we're all connected, Connections is a exploration of how any interation - no matter how brief - changes the course of our lives forever.
+            </>
+        }
+        else if(algo === "Algo2"){
+            return <>
+            <b style={{
+                fontSize: '40px',
+            }}>
+                Perspectives
+            </b>
+            <br/>
+                Sometimes a change of perspective is all you need.
+            </>
+        }
+        else if(algo === "Algo3"){
+            return <>
+            <b style={{
+                fontSize: '40px',
+            }}>
+                Faultlines
+            </b>
+            <br/>
+                Experimentation with vector fields
+            </>
+        }
+        else if(algo === "Algo4"){
+            return <>
+            <b style={{
+                fontSize: '40px',
+            }}>
+                Trying something new
+            </b>
+            <br/>
+                Work in progress!
+            </>
         }
         else return `placeholder text for ${algo}`
     }
