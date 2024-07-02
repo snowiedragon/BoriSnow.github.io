@@ -274,7 +274,7 @@ export function Perspective(){
                 valueLabelDisplay='auto'
                 track={false}
                 min={0}
-                max={100}
+                max={50}
                 value={vanishingDistance}
                 onChange={vanishingDistanceUpdate}
                 style={{
