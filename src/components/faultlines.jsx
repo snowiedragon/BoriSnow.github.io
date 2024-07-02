@@ -17,9 +17,19 @@ export function Faultline () {
 
     React.useEffect(() => {
         let c = canvas.current.getContext('2d');
+
         const gradient = c.createLinearGradient(0, 500, 1000, 0);
         gradient.addColorStop(0, "#E30E7C");
         gradient.addColorStop(1, "#15D1E6");
+
+        const getWidth = () => {
+            return window.innerWidth * 0.6
+        }
+        const getHeight = () => {
+            return window.innerHeight * 0.6
+        }
+        c.canvas.width = getWidth()
+        c.canvas.height = getHeight()
 
         class Vector {
             constructor(x1, y1, x2, y2){
@@ -29,7 +39,7 @@ export function Faultline () {
                 this.y2 = y2;
             }
 
-            drawVector(){ 
+            debugDrawVector(){ 
                 c.beginPath();
                 c.moveTo(this.x1, this.y1);
                 c.lineTo(this.x2, this.y2);
@@ -39,20 +49,17 @@ export function Faultline () {
             }
 
             drawFault(){
-                let rightCheck;
-                let leftCheck;
                 for(let i = 0; i < originX.length; i++){ //scans each point
                     let dx = 0;
                     let dy = 0;
                     c.beginPath();
                     c.moveTo(originX[i], originY[i]);
-                    //console.log("(" + originX[i] + ", " + originY[i] + ")");
-                    while(originX[i] > 0 || originY[i] < 500){ //until the line reaches an edge
+                    while(originX[i] > 0 || originY[i] < getHeight()){ //until the line reaches an edge
                         let closeVector = [];
-                        let vecX = Math.floor(originX[i]/(1000/column));
-                        let vecY = Math.floor(originY[i]/(500/row));
-                        let vecX2 = Math.ceil(originX[i]/(1000/column));
-                        let vecY2 = Math.ceil(originY[i]/(500/row));
+                        let vecX = Math.floor(originX[i]/(getWidth()/column));
+                        let vecY = Math.floor(originY[i]/(getHeight()/row));
+                        let vecX2 = Math.ceil(originX[i]/(getWidth()/column));
+                        let vecY2 = Math.ceil(originY[i]/(getHeight()/row));
                         cV = vecY * (column + 1) + vecX;
                         if(cV > vectorArray.length || cV < 0) {break;}
                         closeVector.push(cV);
@@ -84,8 +91,8 @@ export function Faultline () {
         }
 
         const spawnVectors = () => {
-            let columnStep = 1000/column;
-            let rowStep = 500/row;
+            let columnStep = getWidth()/column;
+            let rowStep = getHeight()/row;
             for(let i = 0; i <= row; i++){
                 let y1 = rowStep*i;
                 for(let m = 0; m <= column; m++){
@@ -96,12 +103,12 @@ export function Faultline () {
                 }
             }
             for(let j = 0; j < originCount; j++){ // spawn N points
-                let x = Math.random() * (1000 - 5);
-                let y = Math.random() * (500 - 5);
+                let x = Math.random() * (getWidth() - 5);
+                let y = Math.random() * (getHeight() - 5);
                 originX.push(x);
                 originY.push(y);
             }
-            c.clearRect(0, 0, 1000, 500);
+            c.clearRect(0, 0, getWidth(), getHeight());
             // for(let k = 0; k < vectorArray.length; k++){
             //     vectorArray[k].drawVector();
             // }

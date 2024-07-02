@@ -1,121 +1,170 @@
 import { Slider } from '@mui/material';
 import React from 'react';
 
-let nodeCount = 50;
-let lastNodeCount = nodeCount;
-var velocityMultiplier = 1;
-var nodeLine = 70;
-let savedVelocity = velocityMultiplier;
+//Set default values
+let nodeCount = 50, lastNodeCount = 50
+var velocityMultiplier = 1, savedVelocity = 1
+var nodeline = 70
 
 function sliderLabel(value){
-    return `${value}`;
+    return `${value}`
 }
 
-export function Connections() {
-    const canvas = React.createRef();
-    const [toggle, setToggle] = React.useState(true);
+export function Connections(){
+    const canvas = React.createRef()
+
+    function getWidth(){
+        return window.innerWidth * 0.6
+    }
+    function getHeight(){
+        return window.innerHeight * 0.6
+    }
 
     let nodeArray = [];
 
     React.useEffect(() => {
-        let c = canvas.current.getContext('2d');
+        let c = canvas.current.getContext('2d')
 
-        class Node {
+        c.canvas.width = getWidth()
+        c.canvas.height = getHeight()
+
+        class Node{
             constructor(x, y, dx, dy){
-                this.x = x;
-                this.y = y;
-                this.dx = dx;
-                this.dy = dy;
+                this.x = x
+                this.y = y
+                this.dx = dx
+                this.dy = dy
             }
 
-            drawCircle(){
+            //Draw on canvas
+            drawNode(){
                 c.beginPath()
-                    c.arc(this.x, this.y, 5, 0, Math.PI*2);
-                    c.strokeStyle = "#FFFFFF";
-                    c.fillStyle = "#1883db";
-                    c.lineWidth = 2;
-                    c.fill();
-                    c.stroke();
-            }
-
-            drawLine(m){
-                c.beginPath();
-                c.moveTo(this.x, this.y);
-                c.lineTo(nodeArray[m].x, nodeArray[m].y);
-                const gradient = c.createLinearGradient(this.x, this.y, nodeArray[m].x, nodeArray[m].y);
-                gradient.addColorStop(0, "transparent");
-                gradient.addColorStop(0.5, "#1883db");
-                gradient.addColorStop(1, "transparent");
-                c.strokeStyle = gradient;
-                c.lineWidth = "2px";
+                c.arc(this.x, this.y, 5, 0, Math.PI*2);
+                c.strokeStyle = "#FFFFFF";
+                c.fillStyle = "#1883db";
+                c.lineWidth = 2;
+                c.fill();
                 c.stroke();
             }
 
-            handleCollision(m){
-                let yPointPos = this.x + (nodeArray[m].y - nodeArray[m].x);
-                let yPointNeg = -this.x + (nodeArray[m].y - nodeArray[m].x);
+            //Draw connections
+            drawLine(otherNode){
+                c.beginPath()
+                c.moveTo(this.x, this.y)
+                c.lineTo(otherNode.x, otherNode.y)
+                const g = c.createLinearGradient(this.x, this.y, otherNode.x, otherNode.y)
+                g.addColorStop(0, "transparent")
+                g.addColorStop(0.5, "#1883db")
+                g.addColorStop(1, "transparent")
+                c.strokeStyle = g
+                c.lineWidth = "2px"
+                c.stroke()
+            }
+
+            //Update position on canvas
+            update(){
+                this.x += (this.dx * velocityMultiplier)
+                this.y += (this.dy * velocityMultiplier)
+                if(this.x > getWidth() - 5 || this.x < 4){this.dx = -this.dx}
+                if(this.y > getHeight() - 5 || this.y < 4){this.dy = -this.dy}
+                for(let i = 0; i < nodeArray.length; i++){
+                    let distance = this.getDistance(nodeArray[i])
+                    if (distance <= 11 && distance != 0){
+                        this.collide(nodeArray[i])
+                    }
+                    else if (distance <= nodeline && distance != 0){
+                        this.drawLine(nodeArray[i])
+                    }
+                }
+                this.drawNode()
+            }
+
+            collide(otherNode){
+                let yPointPos = this.x + (otherNode.y - otherNode.x);
+                let yPointNeg = -this.x + (otherNode.y - otherNode.x);
                 if((this.y >= yPointPos && this.y >= yPointNeg) || (this.y <= yPointPos & this.y <= yPointNeg)) { //top & bottom quadrant
                     this.dy = -this.dy;
-                    nodeArray[m].dy = -nodeArray[m].dy
+                    otherNode.dy = -otherNode.dy
                 }
                 else { //right & left quadrants
                     this.dx = -this.dx
-                    nodeArray[m].dx = -nodeArray[m].dx
+                    otherNode.dx = -otherNode.dx
                 }
             }
 
-            updateCircle(){
-                for(let m = 0; m < nodeArray.length; m++){
-                    let distance = Math.sqrt((this.x - nodeArray[m].x)*(this.x - nodeArray[m].x)+(this.y - nodeArray[m].y)*(this.y - nodeArray[m].y))
-                    if (distance <= 11 && distance != 0){
-                        this.handleCollision(m);
-                    }
-                    if (distance <= nodeLine && distance != 0){
-                        this.drawLine(m);
-                    }
-                }
-                if(this.x + 5 > 1000 || this.x - 5 < 0){ this.dx = -this.dx }
-                if(this.y + 5 > 500 || this.y - 5 < 0){ this.dy = -this.dy }
-                this.x += (this.dx * velocityMultiplier);
-                this.y += (this.dy * velocityMultiplier);
-                this.drawCircle();
+            getDistance(otherNode){
+                return Math.sqrt(Math.pow((this.x - otherNode.x), 2) + Math.pow((this.y-otherNode.y), 2))
             }
-
         }
 
-        const spawnNodes = (n) => {
+        function detectOverlap(){
+            for(let i = 0; i < nodeArray.length; i++){
+                for(let j = 0; j < nodeArray.length; j++){
+                    if(nodeArray[i].getDistance(nodeArray[j]) <= 10 && nodeArray[i].getDistance(nodeArray[j]) != 0){
+                        nodeArray[j].x += 10
+                        nodeArray[j].y += 10
+                    }
+                nodeArray[i].drawNode()
+                }
+            }
+        }
+
+        //Generate coordinates and velocity for new nodes
+        function spawnNodes(n){
             for(let i = 0; i < n; i++){
-                let x = Math.random() * (995 - 6) + 6;
-                let y = Math.random() * (495 - 6) + 6;
-                let dx = (Math.random() * (1) - 0.5); //randomize starting direction
-                let dy = (Math.random() * (1) - 0.5);
-                if(dx >= -0.2 && dx <= 0.2){ //prevent stars from travelling too slowly
-                    dx += 0.2;
+                let x = Math.random() * (getWidth() - 10) + 10
+                let y = Math.random() * (getHeight() - 10) + 10
+                let dx = (Math.random() * 1 - 0.5)
+                let dy = (Math.random() * 1 - 0.5)
+                if(dx >= -0.2 && dx <= 0.2){ //prevent nodes from travelling too slowly
+                    if(dx > 0){
+                        dx += 0.2
+                    }
+                    else{
+                        dx -= 0.2
+                    }
                 }
                 if(dy >= -0.2 && dy <= 0.2){
-                    dy += 0.2;
+                    if(dy > 0){
+                        dy += 0.2
+                    }
+                    else{
+                        dy -= 0.2
+                    }
                 }
                 nodeArray.push(new Node(x, y, dx, dy))
-                lastNodeCount = nodeCount;
             }
+            detectOverlap()
+            lastNodeCount = nodeCount;
         }
 
-        spawnNodes(nodeCount);
+        spawnNodes(nodeCount)
+
+        window.addEventListener('resize', resizeCanvas, false)
+        
+        function resizeCanvas(){
+            c.canvas.width = getWidth()
+            c.canvas.height = getHeight()
+            nodeArray = []
+            spawnNodes(nodeCount)
+        }
+
+        resizeCanvas()
 
         const render = () => {
-            c.clearRect(0, 0, 1000, 500);
-            if (lastNodeCount < nodeCount){
+            c.clearRect(0, 0, getWidth(), getHeight())
+            if(lastNodeCount < nodeCount){
                 let n = nodeCount - lastNodeCount
-                spawnNodes(n);
+                spawnNodes(n)
             }
             for(let i = 0; i < nodeArray.length; i++){
-                nodeArray[i].updateCircle();
+                nodeArray[i].update()
             }
-            lastNodeCount = nodeCount;
-            requestAnimationFrame(render);
+            lastNodeCount = nodeCount
+            requestAnimationFrame(render)
         }
 
-        render();
+        render()
 
         document.getElementById('stop').addEventListener('click', function(){
             if(velocityMultiplier === 0) {return;}
@@ -127,19 +176,22 @@ export function Connections() {
             velocityMultiplier = savedVelocity;
         })
 
+        document.getElementById('reset').addEventListener('click', function(){
+                nodeArray = []
+                spawnNodes(nodeCount)
+        })
+
         document.getElementById('download').addEventListener('click', function(){
             let can = document.getElementById("constcanvas");
             let canvasUrl = can.toDataURL();
-            const canvasElement = document.createElement('a');
+            const canvasElement = document.createElement('canvas');
             canvasElement.href = canvasUrl;
             canvasElement.download = "connections.png";
             canvasElement.click();
         })
+    }, [])
 
-
-    }, [toggle]);
-
-    const densityUpdate = (event, newValue) => {
+    function densityUpdate(event, newValue){
         if(lastNodeCount < newValue){ //increase the number of nodes
             nodeCount = newValue
         }
@@ -150,13 +202,13 @@ export function Connections() {
         }
     }
 
-    const velocityMultiplierUpdate = (event, newValue) => {
+    function velocityMultiplierUpdate(event, newValue){
         velocityMultiplier = newValue;
         savedVelocity = velocityMultiplier;
     }
 
-    const nodeLineUpdate = (event, newValue) => {
-        nodeLine = newValue;
+    function nodeLineUpdate(event, newValue){
+        nodeline = newValue;
     }
 
     return(
@@ -164,8 +216,9 @@ export function Connections() {
             <canvas 
                 ref={canvas} 
                 id="constcanvas"
-                height={500} 
-                width={1000}
+                position='absolute'
+                height='100%'
+                width='100%'
                 style={{
                     background: "#000000"
                 }}
@@ -173,6 +226,7 @@ export function Connections() {
             <br/>
             <input type="button" value="STOP!" id="stop"/>
             <input type="button" value="RESUME!" id="resume"/>
+            <input type="button" value="RESET!" id="reset"/>
             <input type="button" value="Download Image!" id="download"/>
             <br/>
             Node Density:
@@ -189,7 +243,7 @@ export function Connections() {
                 defaultValue={50}
                 onChangeCommitted={densityUpdate}
                 style={{
-                    width: 500
+                    width: getWidth()
                 }}
             />
             <br/>
@@ -207,7 +261,7 @@ export function Connections() {
                 defaultValue={1}
                 onChange={velocityMultiplierUpdate}
                 style={{
-                    width: 500
+                    width: getWidth()
                 }}
             />
             <br/>
@@ -225,10 +279,9 @@ export function Connections() {
                 defaultValue={70}
                 onChange={nodeLineUpdate}
                 style={{
-                    width: 500
+                    width: getWidth()
                 }}
             />
         </>
     )
-
 }

@@ -2,6 +2,7 @@ import { Connections } from "./connections.jsx";
 import { Perspective } from "./perspective.jsx";
 import { Faultline } from "./faultlines.jsx";
 import { Waves } from "./waves.jsx";
+import { Sphere } from "./ballperspective.jsx"
 
 export function Algodetailpage({ algo }) { //accepts the selected algo
     
@@ -50,6 +51,17 @@ export function Algodetailpage({ algo }) { //accepts the selected algo
                 Work in progress!
             </>
         }
+        else if(algo === "Algo5"){
+            return <>
+            <b style={{
+                fontSize: '40px',
+            }}>
+                Trying something new
+            </b>
+            <br/>
+                Work in progress!
+            </>
+        }
         else return `placeholder text for ${algo}`
     }
 
@@ -80,7 +92,8 @@ export function Algodetailpage({ algo }) { //accepts the selected algo
             {algo === 'Algo1' && <Connections/>} 
             {algo === 'Algo2' && <Perspective/>}
             {algo === 'Algo3' && <Faultline/>}
-            {algo === 'Algo4' && <Waves/>}
+            {/* {algo === 'Algo4' && <Waves/>}
+            {algo === 'Algo5' && <Sphere/>} */}
         </div>
     </div>
     )

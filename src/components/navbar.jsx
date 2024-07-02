@@ -44,7 +44,7 @@ export function Navbar({setSelectedAlgo}) {
           Faultlines
           </p>
         </button>
-        |
+        {/* |
         <button style={{
           border: 'none',
           background: 'none'
@@ -55,6 +55,17 @@ export function Navbar({setSelectedAlgo}) {
           Waves
          </p>
         </button>
+        |
+        <button style={{
+          border: 'none',
+          background: 'none'
+        }} onClick={() => setSelectedAlgo("Algo5")}> 
+         <p style={{
+          color: 'red'
+         }}>
+          Ball
+         </p>
+        </button> */}
     </div>
   )
 }

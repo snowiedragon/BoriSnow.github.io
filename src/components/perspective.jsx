@@ -1,156 +1,193 @@
 import React from 'react';
 import { Slider } from '@mui/material';
 
-function label(value) {
+function label(value){
     return `${value}`;
 }
 
-export function Perspective() {
+export function Perspective(){
     const canvas = React.useRef();
-    const [horizonLine, setHorizonLine] = React.useState(250); //customize the horizon line
-    const [vanishingPoint, setVanishingPoint] = React.useState(20); // how near or far the left VP is from the edge of the canvas
-    const [cubeProportion, setCubeProportion] = React.useState(3); // how large or small cubes will be
-    const [spacing, setSpacing] = React.useState(40);
-    let initialPoint = [500, 450]; // static for now, the vertex closest to the camera
-    let vanishL = [0 - vanishingPoint, horizonLine]; // array containing the left VP
-    let vanishR = [1000 + vanishingPoint, horizonLine]; // array containing the right VP
-    const vertexArray = []; //store the vertices of every cube
+    
+    function getWidth(){
+        return window.innerWidth * 0.6
+    }
+    function getHeight(){
+        return window.innerHeight * 0.6
+    }
+
+    const [horizonLine, setHorizonLine] = React.useState(Math.round(getHeight() * 0.25))
+    const [vanishingDistance, setVanishingDistance] = React.useState(20)
+    const [cubeProportion, setCubeProportion] = React.useState(4)
+    const [spacing, setSpacing] = React.useState(40)
+    const initialPoint = [getWidth()/2, getHeight()*0.65]
+    const vertexArray = []
 
     React.useEffect(() => {
-        let c = canvas.current.getContext('2d');
+        let c = canvas.current.getContext('2d')
 
-        class Point {
+        let vanishL = [0 - vanishingDistance, horizonLine]
+        let vanishR = [getWidth() + vanishingDistance, horizonLine]
+        c.canvas.width = getWidth()
+        c.canvas.height = getHeight()
+        
+        const gVanish = c.createLinearGradient(initialPoint[0], initialPoint[1], initialPoint[0], horizonLine)
+        gVanish.addColorStop(0, "white")
+        gVanish.addColorStop(1, "transparent")
+
+        class Vertex{
             constructor(x, y){
-                this.x = x;
-                this.y = y;
+                this.x = x
+                this.y = y
             }
 
-            drawVerticalLine(){
+            drawVerticalLine(endPoint){
+                const gVert = c.createLinearGradient(this.x, this.y, this.x, getHeight())
+                gVert.addColorStop(0, "white")
+                gVert.addColorStop(1, "transparent")
                 c.beginPath()
-                c.moveTo(this.x, this.y);
-                c.lineTo(this.x, 500);
-                const gradientVertical = c.createLinearGradient(this.x, this.y, this.x, 500);
-                gradientVertical.addColorStop(0, "white");
-                gradientVertical.addColorStop(1, "transparent");
-                c.strokeStyle = gradientVertical;
-                c.lineWidth = "4px";
+                c.lineWidth = "4px"
+                if(endPoint == null){
+                    c.moveTo(this.x, this.y)
+                    c.lineTo(this.x, getHeight())
+                    c.strokeStyle = gVert
+                    c.stroke()
+                }
+                else{
+                    c.moveTo(this.x, this.y)
+                    c.lineTo(this.x, endPoint)
+                    c.strokeStyle = gVanish
+                    c.stroke()
+                }
+            }
+
+            drawLine(point){
+                point = new Vertex(point[0], point[1])
+                c.beginPath()
+                c.moveTo(this.x, this.y)
+                c.lineTo(point.x, point.y)
+                c.strokeStyle = gVanish
+                c.lineWidth = "4px"
+                c.stroke()
+                c.closePath()
+            }
+
+            findIntersect(point){
+                let m1, m2
+                if(this.x < initialPoint[0]){
+                    m1 = (this.y - vanishR[1])/(this.x - vanishR[0])
+                    m2 = (point.y - vanishL[1])/(point.x - vanishL[0])
+                }
+                else{
+                    m1 = (this.y - vanishL[1])/(this.x - vanishL[0])
+                    m2 = (point.y - vanishR[1])/(point.x - vanishR[0])
+                }
+                let b1 = this.y - (m1 * this.x)
+                let b2 = point.y - (m2 * point.x)
+                return [(b2 - b1)/(m1 - m2), m1 * ((b2 - b1)/(m1 - m2)) + b1]
+            }
+
+            drawInnerLine(index, prevPoint){
+                let lastPoint = new Vertex(this.x, this.y)
+                for(let i = index; i < vertexArray.length; i += 4){
+                    let innerVertex = this.findIntersect(vertexArray[i])
+                    lastPoint.drawLine(innerVertex)
+                    if(index === 2 && prevPoint){
+                        innerVertex = new Vertex(innerVertex[0], innerVertex[1])
+                        innerVertex.drawVerticalLine(lineEqn(innerVertex.x, vanishR, [prevPoint.x, prevPoint.y]))
+                    }
+                    if(i + 2 >= vertexArray.length) return
+                    let nextPoint = this.findIntersect(vertexArray[i + 2])
+                    lastPoint = new Vertex(nextPoint[0], nextPoint[1])
+                    if(index === 2){
+                        lastPoint.drawVerticalLine(lineEqn(lastPoint.x, vanishL, [vertexArray[i].x, vertexArray[i].y]))
+                    }
+                }
+            }
+        }
+
+        function drawHorizon(){
+            if(horizonLine < initialPoint[1]){
+                c.clearRect(0, 0, getWidth(), getHeight());
+                c.beginPath();
+                c.moveTo(vanishL[0], vanishL[1]);
+                c.lineTo(vanishR[0], vanishR[1]);
+                c.strokeStyle = "#808080";
+                c.lineWidth = "2px";
                 c.stroke();
-            }
-
-            drawLine() {
-                let count = 0;
-                let next;
-                for(let i = 0; i < vertexArray.length; i++){
-                    c.beginPath();
-                    const gradient = c.createLinearGradient(vanishL[0], vanishL[1], vanishR[0], vanishR[1]);
-                    gradient.addColorStop(0, "transparent");
-                    gradient.addColorStop(0.5, "white");
-                    gradient.addColorStop(1, "transparent");
-                    next = i + 2;
-                    if (next >= vertexArray.length) {return;}
-                    if (count === 5) {count = 1}
-                    if (count === 0){
-                        c.moveTo(vertexArray[1].x, vertexArray[1].y);
-                        c.lineTo(vertexArray[0].x, vertexArray[0].y);
-                        c.lineTo(vertexArray[2].x, vertexArray[2].y);
-                        c.strokeStyle = gradient;
-                        c.lineWidth = "4px";
-                        c.stroke();
-                        c.closePath();
-                    }
-                    if (count === 1){
-                        c.moveTo(vertexArray[i].x, vertexArray[i].y);
-                        c.lineTo(vanishR[0], vanishR[1]);
-                        c.strokeStyle = gradient;
-                        c.lineWidth = "4px";
-                        c.stroke();
-                        c.closePath();
-                    }
-                    if (count === 2){
-                        c.moveTo(vertexArray[i].x, vertexArray[i].y);
-                        c.lineTo(vanishL[0], vanishL[1]);
-                        c.strokeStyle = gradient;
-                        c.lineWidth = "4px";
-                        c.stroke();
-                        c.closePath();
-                    }
-                    if (count === 3){
-                        c.moveTo(vertexArray[next].x, vertexArray[next].y);
-                        c.lineTo(vertexArray[i].x, vertexArray[i].y);
-                        c.lineTo(vanishR[0], vanishR[1]);
-                        c.strokeStyle = gradient;
-                        c.lineWidth = "4px";
-                        c.stroke();
-                        c.closePath();
-                    }
-                    if (count === 4){
-                        c.moveTo(vertexArray[next].x, vertexArray[next].y);
-                        c.lineTo(vertexArray[i].x, vertexArray[i].y);
-                        c.lineTo(vanishL[0], vanishL[1]);
-                        c.strokeStyle = gradient;
-                        c.lineWidth = "4px";
-                        c.stroke();
-                        c.closePath();
-                    }
-                    count++;
-                }
-                return;
+                c.closePath();
             }
         }
 
-        const linePoint = () => {
-            c.clearRect(0, 0, 1000, 500);
-            c.beginPath();
-            c.moveTo(vanishL[0], vanishL[1]);
-            c.lineTo(vanishR[0], vanishR[1]);
-            c.strokeStyle = "white";
-            c.lineWidth = "2px";
-            c.stroke();
-            c.closePath();
-            let x = initialPoint[0]
-            let y = initialPoint[1];
-            let xL = x;
-            let yL = y;
-            let yR = y;
-            let xR = x;
-            let n = 1;
-            let difference = 600;
-            let proportion = cubeProportion;
-            let spaces = spacing
-            let mL = (vanishL[1] - y)/(vanishL[0] - xL); //Slope of IP to LVP
-            let bL = y - (mL*x); //y-int of L
-            let mR = (vanishR[1] - y)/(vanishR[0] - xR); //Slope of IP to RVP
-            let bR = y - (mR*x); //y-int of R
-            vertexArray.push(new Point(x, y))
-
-            while (xL > vanishL[0] || xR < vanishR){ //5 boxes generated
-                //xL and xR begins at initialPoint or the last point it was at
-                xL = xL - (difference/proportion);
-                yL = mL*xL+bL;
-                xR = xR + (difference/proportion);
-                yR = mR*xR+bR;
-                difference = difference - (difference/proportion);
-                if (xL < vanishL[0] || xR > vanishR) {break}
-                vertexArray.push(new Point(xL, yL))
-                vertexArray.push(new Point(xR, yR))
-                xL = xL - (spaces/proportion);
-                yL = mL*xL+bL;
-                xR = xR + (spaces/proportion);
-                yR = mR*xR+bR;
-                spaces = spaces - (spaces/proportion);
-                proportion++;
-                if (xL < vanishL[0] || xR > vanishR) {break}
-                vertexArray.push(new Point(xL, yL))
-                vertexArray.push(new Point(xR, yR))
-                n++;
-            }
-            vertexArray[0].drawLine();
-                for (let i = 0; i < vertexArray.length; i++){
-                    vertexArray[i].drawVerticalLine();
-                }
+        function lineEqn(x, vanish, anchor){
+            let m = (vanish[1] - anchor[1])/(vanish[0] - anchor[0])
+            let b = anchor[1] - (m * anchor[0])
+            return m * x + b
         }
 
-        linePoint();
+        function genVertex(){
+            vertexArray.push(new Vertex(initialPoint[0], initialPoint[1]))
+            let x = initialPoint[0], y = initialPoint[1]
+            let difference = 600
+            let proportion = cubeProportion, spaces = spacing
+            while(x > vanishL[0]){
+                x -= (difference/proportion)
+                y = lineEqn(x, vanishL, initialPoint)
+                difference -= difference/proportion
+                if(x < vanishL[0]) break
+                vertexArray.push(new Vertex(x, y))
+                vertexArray.push(new Vertex(getWidth() - x, y))
+                x -= (spaces/proportion)
+                y = lineEqn(x, vanishL, initialPoint)
+                spaces -= spaces/proportion
+                proportion++
+                if(x < vanishL[0]) break
+                vertexArray.push(new Vertex(x, y))
+                vertexArray.push(new Vertex(getWidth() - x, y))
+            }
+        }
+
+        function drawBoxes(){
+            vertexArray[0].drawLine([vertexArray[1].x, vertexArray[1].y])
+            vertexArray[0].drawLine([vertexArray[2].x, vertexArray[2].y])
+            vertexArray[0].drawVerticalLine()
+            let next, count = 1
+            for(let i = 1; i < vertexArray.length; i++){
+                next = i + 2
+                if(next >= vertexArray.length) return
+                if(count === 5) count = 1
+                if(horizonLine > initialPoint[1]){
+                    if(count === 3 || count === 4){
+                        vertexArray[i].drawLine([vertexArray[next].x, vertexArray[next].y])
+                        if(count === 3) vertexArray[i].drawLine([vertexArray[i - 2].x, lineEqn(vertexArray[i - 2].x, vanishR, [vertexArray[i].x, vertexArray[i].y])])
+                        else vertexArray[i].drawLine([vertexArray[i - 2].x, lineEqn(vertexArray[i - 2].x, vanishL, [vertexArray[i].x, vertexArray[i].y])])
+                    }
+                }
+                else if(count === 1){
+                    //vertexArray[i].drawLine([vanishR[0], vanishR[1]])
+                    vertexArray[i].drawInnerLine(2)
+                }
+                else if(count === 2){
+                    //vertexArray[i].drawLine([vanishL[0], vanishL[1]])
+                    vertexArray[i].drawInnerLine(1)
+                }
+                else if(count === 3){
+                    vertexArray[i].drawLine([vertexArray[next].x, vertexArray[next].y])
+                    //vertexArray[i].drawLine([vanishR[0], vanishR[1]])
+                    vertexArray[i].drawInnerLine(2, vertexArray[i - 2])
+                }
+                else if(count === 4){
+                    vertexArray[i].drawLine([vertexArray[next].x, vertexArray[next].y])
+                    //vertexArray[i].drawLine([vanishL[0], vanishL[1]])
+                    vertexArray[i].drawInnerLine(1)
+                }
+                vertexArray[i].drawVerticalLine(null)
+                count++                
+            }
+        }
+
+        drawHorizon()
+        genVertex()
+        drawBoxes()
 
     })
 
@@ -167,31 +204,29 @@ export function Perspective() {
         }, [])
     }    
 
-
-    const spacingUpdate = (event, newValue) => {
+    function spacingUpdate(event, newValue){
         setSpacing (newValue);
     }
 
-    const horizonUpdate = (event, newValue) => {
+    function horizonUpdate(event, newValue){
         setHorizonLine (newValue);
     }
     
-    const vanishingPointUpdate = (event, newValue) => {
-        setVanishingPoint (newValue);
+    function vanishingDistanceUpdate(event, newValue){
+        setVanishingDistance (newValue);
     }
 
-    const cubeProportionUpdate = (event, newValue) => {
+    function cubeProportionUpdate(event, newValue){
         setCubeProportion (newValue);
     }
-
 
     return(
         <>
             <canvas
                 ref={canvas}
                 id="perspectivecanvas"
-                height={500}
-                width={1000}
+                height='100%'
+                width='100%'
                 style={{
                     background: "#000000"
                 }}
@@ -205,15 +240,13 @@ export function Perspective() {
                 aria-label='spacing'
                 getAriaLabel={label}
                 valueLabelDisplay='auto'
-                step={5}
-                marks={true}
                 track={false}
                 min={10}
-                max={100}
+                max={200}
                 value={spacing}
                 onChange={spacingUpdate}
                 style={{
-                    width: 500
+                    width: getWidth()
                 }}
             />
             <br/>
@@ -223,33 +256,29 @@ export function Perspective() {
                 aria-label='horizonLine'
                 getAriaLabel={label}
                 valueLabelDisplay='auto'
-                step={10}
-                marks={true}
                 track={false}
-                min={100}
-                max={400}
+                min={0}
+                max={initialPoint[0]}
                 value={horizonLine}
                 onChange={horizonUpdate}
                 style={{
-                    width: 500
+                    width: getWidth()
                 }}
             />
             <br/>
-            Vanishing Points: {vanishingPoint}
+            Vanishing Points: {vanishingDistance}
             <br/>
             <Slider
                 aria-label='VP'
                 getAriaLabel={label}
                 valueLabelDisplay='auto'
-                step={10}
-                marks={true}
                 track={false}
                 min={0}
                 max={100}
-                value={vanishingPoint}
-                onChange={vanishingPointUpdate}
+                value={vanishingDistance}
+                onChange={vanishingDistanceUpdate}
                 style={{
-                    width: 500
+                    width: getWidth()
                 }}
             />
             <br/>
@@ -259,17 +288,17 @@ export function Perspective() {
                 aria-label='cubeProportion'
                 getAriaLabel={label}
                 valueLabelDisplay='auto'
-                step={1}
-                marks={true}
+                step={0.01}
                 track={false}
-                min={2}
-                max={5}
+                min={3}
+                max={6}
                 value={cubeProportion}
                 onChange={cubeProportionUpdate}
                 style={{
-                    width: 500
+                    width: getWidth()
                 }}
             />
         </>
     )
+
 }
