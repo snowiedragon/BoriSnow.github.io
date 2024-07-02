@@ -29,6 +29,8 @@ export function Perspective(){
         let vanishR = [getWidth() + vanishingDistance, horizonLine]
         c.canvas.width = getWidth()
         c.canvas.height = getHeight()
+
+        console.log([getWidth()])
         
         const gVanish = c.createLinearGradient(initialPoint[0], initialPoint[1], initialPoint[0], horizonLine)
         gVanish.addColorStop(0, "white")
@@ -241,7 +243,7 @@ export function Perspective(){
                 getAriaLabel={label}
                 valueLabelDisplay='auto'
                 track={false}
-                min={10}
+                min={Math.round(getWidth()*0.05)}
                 max={200}
                 value={spacing}
                 onChange={spacingUpdate}
@@ -266,22 +268,6 @@ export function Perspective(){
                 }}
             />
             <br/>
-            Vanishing Points: {vanishingDistance}
-            <br/>
-            <Slider
-                aria-label='VP'
-                getAriaLabel={label}
-                valueLabelDisplay='auto'
-                track={false}
-                min={0}
-                max={50}
-                value={vanishingDistance}
-                onChange={vanishingDistanceUpdate}
-                style={{
-                    width: getWidth()
-                }}
-            />
-            <br/>
             Cube Proportion: {cubeProportion}
             <br/>
             <Slider
@@ -291,7 +277,7 @@ export function Perspective(){
                 step={0.01}
                 track={false}
                 min={3}
-                max={6}
+                max={5}
                 value={cubeProportion}
                 onChange={cubeProportionUpdate}
                 style={{
