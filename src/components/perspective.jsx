@@ -16,9 +16,9 @@ export function Perspective(){
     }
 
     const [horizonLine, setHorizonLine] = React.useState(Math.round(getHeight() * 0.25))
-    const [vanishingDistance, setVanishingDistance] = React.useState(20)
-    const [cubeProportion, setCubeProportion] = React.useState(4)
-    const [spacing, setSpacing] = React.useState(40)
+    const [vanishingDistance, setVanishingDistance] = React.useState(30)
+    const [cubeProportion, setCubeProportion] = React.useState(Math.round((1/((getWidth()/2)/100))*25))
+    const [spacing, setSpacing] = React.useState(Math.round(getWidth()*0.08))
     const initialPoint = [getWidth()/2, getHeight()*0.65]
     const vertexArray = []
 
@@ -29,8 +29,6 @@ export function Perspective(){
         let vanishR = [getWidth() + vanishingDistance, horizonLine]
         c.canvas.width = getWidth()
         c.canvas.height = getHeight()
-
-        console.log([getWidth()])
         
         const gVanish = c.createLinearGradient(initialPoint[0], initialPoint[1], initialPoint[0], horizonLine)
         gVanish.addColorStop(0, "white")
@@ -118,6 +116,7 @@ export function Perspective(){
                 c.stroke();
                 c.closePath();
             }
+            console.log("Width: " + getWidth() + "\nHeight: " + getHeight())
         }
 
         function lineEqn(x, vanish, anchor){
@@ -243,7 +242,7 @@ export function Perspective(){
                 getAriaLabel={label}
                 valueLabelDisplay='auto'
                 track={false}
-                min={Math.round(getWidth()*0.05)}
+                min={Math.round(getWidth()*0.1)}
                 max={200}
                 value={spacing}
                 onChange={spacingUpdate}
@@ -276,8 +275,8 @@ export function Perspective(){
                 valueLabelDisplay='auto'
                 step={0.01}
                 track={false}
-                min={3}
-                max={5}
+                min={Math.round((1/((getWidth()/2)/100))*25) - 1}
+                max={Math.round((1/((getWidth()/2)/100))*25) + 1}
                 value={cubeProportion}
                 onChange={cubeProportionUpdate}
                 style={{

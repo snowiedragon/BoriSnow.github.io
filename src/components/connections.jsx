@@ -13,13 +13,12 @@ function sliderLabel(value){
 export function Connections(){
     const canvas = React.createRef()
 
-    function getWidth(){
+    const getWidth = () => {
         return window.innerWidth * 0.6
     }
-    function getHeight(){
+    const getHeight = () => {
         return window.innerHeight * 0.6
     }
-
     let nodeArray = [];
 
     React.useEffect(() => {
@@ -97,7 +96,7 @@ export function Connections(){
             }
         }
 
-        function detectOverlap(){
+        const detectOverlap = () => {
             for(let i = 0; i < nodeArray.length; i++){
                 for(let j = 0; j < nodeArray.length; j++){
                     if(nodeArray[i].getDistance(nodeArray[j]) <= 10 && nodeArray[i].getDistance(nodeArray[j]) != 0){
@@ -110,7 +109,7 @@ export function Connections(){
         }
 
         //Generate coordinates and velocity for new nodes
-        function spawnNodes(n){
+        const spawnNodes = (n) => {
             for(let i = 0; i < n; i++){
                 let x = Math.random() * (getWidth() - 10) + 10
                 let y = Math.random() * (getHeight() - 10) + 10
@@ -191,7 +190,7 @@ export function Connections(){
         })
     }, [])
 
-    function densityUpdate(event, newValue){
+    const densityUpdate = (event, newValue) => {
         if(lastNodeCount < newValue){ //increase the number of nodes
             nodeCount = newValue
         }
@@ -202,12 +201,12 @@ export function Connections(){
         }
     }
 
-    function velocityMultiplierUpdate(event, newValue){
+    const velocityMultiplierUpdate = (event, newValue) => {
         velocityMultiplier = newValue;
         savedVelocity = velocityMultiplier;
     }
 
-    function nodeLineUpdate(event, newValue){
+    const nodeLineUpdate = (event, newValue) => {
         nodeline = newValue;
     }
 
@@ -241,7 +240,7 @@ export function Connections(){
                 min={30}
                 max={100}
                 defaultValue={50}
-                onChangeCommitted={densityUpdate}
+                onChange={densityUpdate}
                 style={{
                     width: getWidth()
                 }}
@@ -271,7 +270,6 @@ export function Connections(){
                 aria-label='lineproximity'
                 getAriaLabel={sliderLabel}
                 valueLabelDisplay='auto'
-                step={10}
                 marks={true}
                 track={false}
                 min={50}
