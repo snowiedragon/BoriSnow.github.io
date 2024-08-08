@@ -15,7 +15,7 @@ export function Algodetailpage({ algo }) { //accepts the selected algo
                 Connections
             </b>
             <br/>
-                Inspired by the way we're all connected, Connections is a exploration of how any interation - no matter how brief - changes the course of our lives forever.
+                Inspired by the way we're all connected, Connections is a exploration of how any interaction - no matter how brief - changes the course of our lives forever.
             </>
         }
         else if(algo === "Algo2"){

@@ -30,6 +30,8 @@ export function Faultline () {
         }
         c.canvas.width = getWidth()
         c.canvas.height = getHeight()
+        console.log("Width: [" + getWidth() + "] Height: [" + getHeight() + "]")
+
 
         class Vector {
             constructor(x1, y1, x2, y2){

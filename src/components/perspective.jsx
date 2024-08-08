@@ -29,6 +29,7 @@ export function Perspective(){
         let vanishR = [getWidth() + vanishingDistance, horizonLine]
         c.canvas.width = getWidth()
         c.canvas.height = getHeight()
+        console.log("Width: [" + getWidth() + "] Height: [" + getHeight() + "]")
         
         const gVanish = c.createLinearGradient(initialPoint[0], initialPoint[1], initialPoint[0], horizonLine)
         gVanish.addColorStop(0, "white")
@@ -116,7 +117,6 @@ export function Perspective(){
                 c.stroke();
                 c.closePath();
             }
-            console.log("Width: " + getWidth() + "\nHeight: " + getHeight())
         }
 
         function lineEqn(x, vanish, anchor){

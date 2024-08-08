@@ -26,6 +26,8 @@ export function Connections(){
 
         c.canvas.width = getWidth()
         c.canvas.height = getHeight()
+        console.log("Width: [" + getWidth() + "] Height: [" + getHeight() + "]")
+
 
         class Node{
             constructor(x, y, dx, dy){
